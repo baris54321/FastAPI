@@ -2,6 +2,8 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+from fastapi import Depends
+from sqlalchemy.orm import Session
 
 load_dotenv()
 
@@ -19,3 +21,6 @@ def get_db():
     finally:
         db.close()
 
+# Dependency to get the database session
+def get_db_session(db: Session = Depends(get_db)):
+    return db

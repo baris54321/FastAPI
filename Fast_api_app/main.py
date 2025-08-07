@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from db.session import SessionLocal, engine
 from db.base import Base
-from routers import user_router
+from routers import user_router, product_router
 
 # Create FastAPI app instance
 app = FastAPI()
@@ -20,9 +20,10 @@ app.add_middleware(
 # Create database tables on startup
 Base.metadata.create_all(bind=engine)
 
+
 # Include routers
 app.include_router(user_router.router, prefix="/users", tags=["Users"])
-# app.include_router(product_router.router, prefix="/products", tags=["Products"])
+app.include_router(product_router.router, prefix="/products", tags=["Products"])
 
 # Default route
 @app.get("/")

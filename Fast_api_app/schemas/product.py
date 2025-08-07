@@ -19,3 +19,18 @@ class ProductOut(ProductBase):
 
     class Config:
         from_attributes = True
+
+
+class ProductResponse(BaseModel):
+    data : ProductOut
+    message: str
+    status: str
+
+class DeleteProduct(BaseModel):
+    message: str
+    status: str
+
+class ProductUpdate(BaseModel):
+    name: Optional[str] = None
+    price: Optional[int]  = None 
+    description: Optional[str]  = None

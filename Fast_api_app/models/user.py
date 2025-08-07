@@ -22,8 +22,29 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted_at = Column(DateTime, nullable=True)
 
-    products = relationship("Product", back_populates="owner", cascade="all, delete")
     tokens = relationship("Token", back_populates="user", cascade="all, delete")
+
+    products = relationship(
+        "Product",
+        back_populates="owner",
+        cascade="all, delete",
+        foreign_keys='Product.owner_id'  # 🔥 THIS IS THE FIX
+    )
+
+
+    # Define relationships for updated_by and deleted_by products
+    updated_products = relationship(
+        "Product",
+        foreign_keys='Product.updated_by',
+        back_populates="updated_by_user"
+    )
+
+    deleted_products = relationship(
+        "Product",
+        foreign_keys='Product.deleted_by',
+        back_populates="deleted_by_user"
+    )
+
 
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
