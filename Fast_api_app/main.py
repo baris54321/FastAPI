@@ -36,11 +36,5 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
-# Dependency for getting the DB session (to be used in endpoints)
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Note: get_db_session is used from db.session module
 
