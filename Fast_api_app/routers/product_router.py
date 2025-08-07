@@ -56,13 +56,12 @@ def update_product(product_id: int, product: ProductUpdate, db: Session = Depend
         if not current_user.is_admin_approved:
             raise HTTPException(status_code=403, detail="User not approved by admin")
         
-        if current_user.is_admin:
-            db_product = db.query(Product).filter(Product.id == product_id).filter(Product.deleted_at.is_(None)).first()
-        else:
-            db_product = db.query(Product).filter(Product.id == product_id, Product.owner_id == current_user.id).filter(Product.deleted_at.is_(None)).first()
-        
+        db_product = db.query(Product).filter(Product.id == product_id).filter(Product.deleted_at.is_(None)).first()
         if not db_product:
-            raise HTTPException(status_code=404, detail="Product not found or you do not have permission to update it")
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        if not current_user.is_admin and db_product.owner_id != current_user.id :
+            raise HTTPException(status_code=403, detail="You do not have permission to update this product")
         
         # check prduct name exist 
         existing_product = db.query(Product).filter(
@@ -98,13 +97,12 @@ def delete_product(product_id: int, db: Session = Depends(get_db_session), curre
         if not current_user.is_admin_approved:
             raise HTTPException(status_code=403, detail="User not approved by admin")
         
-        if current_user.is_admin:
-            db_product = db.query(Product).filter(Product.id == product_id).filter(Product.deleted_at.is_(None)).first()
-        else:
-            db_product = db.query(Product).filter(Product.id == product_id, Product.owner_id == current_user.id).filter(Product.deleted_at.is_(None)).first()
-        
+        db_product = db.query(Product).filter(Product.id == product_id).filter(Product.deleted_at.is_(None)).first()
         if not db_product:
-            raise HTTPException(status_code=404, detail="Product not found or you do not have permission to delete it")
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        if not current_user.is_admin and db_product.owner_id != current_user.id :
+            raise HTTPException(status_code=403, detail="You do not have permission to delete this product")
         
         db_product.deleted_by = current_user.id
         db_product.deleted_at = datetime.utcnow()
@@ -119,3 +117,23 @@ def delete_product(product_id: int, db: Session = Depends(get_db_session), curre
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
+#  Get PArticulre product by ID
+@router.get("/get_product/{product_id}", response_model= ProductCreate)
+def get_product(product_id: int, db: Session = Depends(get_db_session), current_user: User = Depends(get_current_user)):
+    try:
+        if not current_user.is_admin_approved:
+            raise HTTPException(status_code=403, detail="User not approved by admin")
+       
+        db_product = db.query(Product).filter(Product.id == product_id).filter(Product.deleted_at.is_(None)).first()
+        if not db_product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        if not current_user.is_admin and db_product.owner_id != current_user.id :
+            raise HTTPException(status_code=403, detail="You do not have permission to view this product")
+        
+        return db_product
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+        
+                
