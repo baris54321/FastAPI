@@ -32,7 +32,6 @@ def create_refresh_token(data: dict):
 def decode_jwt_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        print("✅ Decoded payload:", payload)
         return payload
     except ExpiredSignatureError:
         print("⛔ Token has expired.")
